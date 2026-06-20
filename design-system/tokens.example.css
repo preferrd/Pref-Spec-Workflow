@@ -1,0 +1,57 @@
+/* tokens.example.css — REFERENCE SHAPE ONLY.
+   Replace with your real tokens as `tokens.css` (or run /design-system to generate it).
+   Tokens are CSS custom properties so they map 1:1 onto Tailwind theme + runtime theming.
+   Light is the default; dark overrides under [data-theme="dark"]. */
+
+:root {
+  /* Color — roles, not raw names. Every UI color must be one of these. */
+  --color-bg:          #ffffff;
+  --color-surface:     #f7f8fa;
+  --color-text:        #0f172a;
+  --color-text-muted:  #64748b;
+  --color-border:      #e2e8f0;
+  --color-accent:      #4f46e5;
+  --color-accent-fg:   #ffffff;
+  --color-success:     #16a34a;
+  --color-warning:     #d97706;
+  --color-danger:      #dc2626;
+
+  /* Typography */
+  --font-sans:   "Inter", system-ui, sans-serif;
+  --font-display:"Inter", system-ui, sans-serif;
+  --text-xs: 0.75rem;  --text-sm: 0.875rem; --text-base: 1rem;
+  --text-lg: 1.125rem; --text-xl: 1.5rem;   --text-2xl: 2rem;
+  --leading-tight: 1.2; --leading-normal: 1.5;
+  --weight-regular: 400; --weight-medium: 500; --weight-bold: 700;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem;    --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+
+  /* Radius & elevation */
+  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 1rem; --radius-full: 9999px;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-2: 0 4px 12px rgb(0 0 0 / 0.10);
+
+  /* Motion */
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout */
+  --container: 72rem;
+  --breakpoint-sm: 640px; --breakpoint-md: 768px; --breakpoint-lg: 1024px;
+}
+
+[data-theme="dark"] {
+  --color-bg:         #0b1120;
+  --color-surface:    #111827;
+  --color-text:       #e5e7eb;
+  --color-text-muted: #94a3b8;
+  --color-border:     #1f2937;
+  --color-accent:     #818cf8;
+  --color-accent-fg:  #0b1120;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration: 0ms; }
+}
