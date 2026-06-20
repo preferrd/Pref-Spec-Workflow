@@ -27,6 +27,7 @@ A new feature flows left-to-right. Each phase has **one command** and **one owni
 | 3 | Tasks (the *steps*) | `/tasks <slug>` | `design` | `specs/NNNN-slug/tasks.md` |
 | 4 | Implement (the *build*) | `/implement <slug>` | `coding` | source code + commits |
 | 5 | Verify (the *proof*) | `/verify <slug>` | `test-security` | tests, scans, `specs/NNNN-slug/verification.md` |
+| ↳ | Track (after every run/change) | `/track <slug>` | (any) | `CHANGELOG.md`, `docs/progress.md` |
 
 Run them in order. You can stop after any phase, review the markdown it produced, edit it
 by hand, and resume. The whole point is that the expensive, hard-to-reverse phase
@@ -71,6 +72,8 @@ design-system/    DROP YOUR DESIGN SYSTEM HERE before building (the gate)
 templates/        Blank doc templates the commands copy + fill
 docs/
   stack-profile.md  Your default stack, conventions, commands (EDIT THIS per project)
+  progress.md       Feature board (phase per feature) + dated post-run checklists (the run log)
+CHANGELOG.md        Categorized, dated ledger of every change (Added/Changed/Fixed/Removed/Security/Docs)
 specs/
   README.md       How the per-feature folders work
   NNNN-slug/      One folder per feature: prd, erd, design-system, plan, api-contracts, tasks, verification
@@ -99,4 +102,8 @@ match each new project — every agent reads it before acting.
 ## Non-negotiable conventions
 
 - **Build before you commit.** Web: `npm run build` must print `✓ Compiled successfully`. Services: `pytest` must be green.
+- **Track every change.** Every `/implement` and `/verify` run — and any manual change — ends by
+  updating `CHANGELOG.md` (categorized entry) and `docs/progress.md` (feature board + a dated
+  post-run checklist). Use `/track <slug>` if it wasn't done automatically. A run isn't done
+  until every box in its checklist is ticked or logged as a follow-up.
 - **Spec-first.** If

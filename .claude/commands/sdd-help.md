@@ -6,12 +6,14 @@ allowed-tools: Read
 Explain this project's Spec-Driven Development setup to the user, concisely:
 
 - The pipeline and the command for each phase, in order:
-  `/constitution` → `/design-system` → `/specify` → `/plan` → `/tasks` → `/implement` → `/verify`.
+  `/constitution` → `/design-system` → `/specify` → `/plan` → `/tasks` → `/implement` → `/verify`,
+  with `/track` after every run/change to update `CHANGELOG.md` and `docs/progress.md`.
 - Which agent owns each phase: **design** (constitution, design-system, specify, plan, tasks),
   **coding** (implement), **test-security** (verify).
 - Two golden rules: (1) no production code before an approved spec; (2) no UI is built before a
   user-provided design system exists in `design-system/` and `INTAKE.md` says `Accepted: yes`.
-- Specs live in `specs/NNNN-slug/` and are the source of truth.
+- Specs live in `specs/NNNN-slug/` and are the source of truth. Change history is tracked in
+  `CHANGELOG.md` (categorized) and `docs/progress.md` (feature board + post-run checklists).
 - Where to customise: `docs/stack-profile.md` (stack), `memory/constitution.md` (principles),
   `design-system/` (drop your tokens + components here before building).
 - Point to the worked example in `specs/0001-example-waitlist/`.

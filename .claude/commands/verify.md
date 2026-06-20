@@ -21,4 +21,13 @@ Steps:
 3. The agent creates test files only — it must not edit application source. Fixes go back to
    `/implement $1` for the coding agent.
 
-Finish by reporting the verdict and listing any blocking items.
+## Track
+After the audit, update the project tracking layer (or run `/track $1`):
+- Append entries to `CHANGELOG.md` under `[Unreleased]`: log any vulnerabilities found/fixed
+  under **Security**, and note the verification under **Docs** if no code changed.
+- In `docs/progress.md`: tick the **Verify** box on the feature board row for `$1`, set the
+  **Verdict** column (SHIP / FIX-FIRST), and append a filled-in post-run checklist (from
+  `templates/post-run-checklist.template.md`) to the Run log. Any FIX-FIRST finding becomes an
+  unchecked follow-up item.
+
+Finish by reporting the verdict, the tracking checklist, and listing any blocking items.

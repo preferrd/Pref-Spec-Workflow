@@ -25,4 +25,7 @@ Steps:
    assumptions in an `## Open questions / assumptions` section — never silently guess on scope
    or the data model.
 
+5. Add a row for the new feature to the **Feature board** in `docs/progress.md` with the
+   **Spec** box ticked and the remaining phase boxes unchecked.
+
 Finish by telling the user the folder name and that the next step is `/plan NNNN-slug`.

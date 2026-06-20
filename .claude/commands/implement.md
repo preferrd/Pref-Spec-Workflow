@@ -28,4 +28,13 @@ invent styling to get around the gate.
    the `Co-Authored-By: Claude` trailer, and check off each task in `tasks.md` with the commit.
    If reality forces a deviation from the spec, STOP and surface it.
 
-Finish by reporting which tasks are done and that the next step is `/verify $1`.
+## Track
+After building (or after each task), update the project tracking layer (or run `/track $1`):
+- Append a categorized entry to `CHANGELOG.md` under `[Unreleased]` — usually **Added** for a
+  new feature, **Changed**/**Fixed** otherwise — one line per change with the feature slug and
+  commit hash.
+- In `docs/progress.md`: tick the **Impl** box on the feature board row for `$1`, and append a
+  filled-in post-run checklist (from `templates/post-run-checklist.template.md`) to the Run log.
+
+Finish by reporting which tasks are done, the tracking checklist, and that the next step is
+`/verify $1`.
