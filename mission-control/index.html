@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SDD Mission Control</title>
+<style>
+  :root {
+    --bg: #0b0e14; --panel: #131823; --panel-2: #1a2030; --line: #232b3d;
+    --text: #d7dce6; --dim: #8893a8; --faint: #5b657d;
+    --done: #3fb950; --active: #d29922;
+    --todo: #39435a; --accent: #58a6ff; --ship: #3fb950; --fix: #f85149;
+    --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+         font-size: 14px; line-height: 1.45; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 22px;
+           border-bottom: 1px solid var(--line); background: var(--panel);
+           position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 15px; margin: 0; letter-spacing: .3px; font-weight: 600; }
+  header .repo { color: var(--accent); font-family: var(--mono); }
+  .spacer { flex: 1; }
+  .live { display: flex; align-items: center; gap: 7px; color: var(--dim); font-size: 12px;
+          font-family: var(--mono); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--done);
+         box-shadow: 0 0 0 0 rgba(63,185,80,.5); }
+  .dot.pulse { animation: pulse 1s ease-out; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(63,185,80,.6);} 100% { box-shadow: 0 0 0 7px rgba(63,185,80,0);} }
+  main { padding: 20px 22px 60px; max-width: 1180px; margin: 0 auto; }
+  .gates { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .gate { background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+          padding: 8px 13px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+  .gate b { font-weight: 600; }
+  .pill { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 20px;
+          border: 1px solid var(--line); }
+  .pill.ok { color: var(--done); border-color: rgba(63,185,80,.4); background: rgba(63,185,80,.08); }
+  .pill.warn { color: var(--active); border-color: rgba(210,153,34,.4); background: rgba(210,153,34,.08); }
+  .pill.bad { color: var(--fix); border-color: rgba(248,81,73,.4); background: rgba(248,81,73,.08); }
+  h2.section { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;
+               color: var(--faint); margin: 28px 0 12px; font-weight: 600; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+          padding: 18px 20px; margin-bottom: 16px; }
+  .card-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  .card-head .slug { font-family: var(--mono); font-size: 15px; color: var(--text); font-weight: 600; }
+  .card-head .notes { color: var(--faint); font-size: 12px; margin-left: auto; max-width: 50%;
+                      text-align: right; }
+  .verdict { font-family: var(--mono); font-size: 11px; padding: 2px 9px; border-radius: 4px; }
+  .verdict.SHIP { color: var(--ship); background: rgba(63,185,80,.12); }
+  .verdict.FIX, .verdict["FIX-FIRST"] { color: var(--fix); background: rgba(248,81,73,.12); }
+
+  /* pipeline */
+  .pipe { display: flex; align-items: center; gap: 0; margin-bottom: 16px; flex-wrap: wrap; }
+  .step { display: flex; align-items: center; }
+  .node { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 64px; }
+  .node .bead { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--todo);
+                background: var(--panel-2); display: grid; place-items: center; font-size: 11px;
+                color: var(--faint); font-family: var(--mono); }
+  .node.done .bead { background: var(--done); border-color: var(--done); color: #07210d; }
+  .node.active .bead { background: var(--active); border-color: var(--active); color: #2a1c00;
+                       animation: blink 1.4s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .55; } }
+  .node .lbl { font-size: 10.5px; color: var(--dim); font-family: var(--mono); }
+  .node.done .lbl { color: var(--text); }
+  .connector { width: 26px; height: 2px; background: var(--todo); }
+  .connector.done { background: var(--done); }
+
+  /* tasks */
+  .bar { height: 8px; border-radius: 5px; background: var(--panel-2); overflow: hidden;
+         border: 1px solid var(--line); }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg,#2ea043,#3fb950);
+             transition: width .5s ease; }
+  .task-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim);
+               margin: 14px 0 6px; font-family: var(--mono); }
+  .tasks { list-style: none; padding: 0; margin: 10px 0 0; columns: 2; column-gap: 26px; }
+  .tasks li { font-size: 12.5px; padding: 3px 0; color: var(--dim); break-inside: avoid; }
+  .tasks li.done { color: var(--text); }
+  .tasks li .box { font-family: var(--mono); margin-right: 7px; }
+  .tasks li.done .box { color: var(--done); }
+  .tasks li.active .box { color: var(--active); }
+
+  /* lanes */
+  .lanes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .lane { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line);
+          background: var(--panel-2); color: var(--faint); font-family: var(--mono); }
+  .lane.active { color: var(--text); border-color: rgba(88,166,255,.4); background: rgba(88,166,255,.07); }
+  .lane .f { color: var(--accent); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } .tasks { columns: 1; } }
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line);
+             font-size: 12.5px; align-items: baseline; }
+  .feed li:last-child { border-bottom: 0; }
+  .feed .h { font-family: var(--mono); color: var(--accent); font-size: 11.5px; }
+  .feed .s { flex: 1; color: var(--text); }
+  .feed .w { color: var(--faint); font-size: 11px; white-space: nowrap; }
+  .cat { font-family: var(--mono); font-size: 10px; padding: 1px 6px; border-radius: 3px;
+         background: var(--panel-2); color: var(--dim); margin-right: 8px; }
+  .empty { color: var(--faint); font-size: 12.5px; font-style: italic; }
+  footer { text-align: center; color: var(--faint); font-size: 11px; padding: 30px 0 10px;
+           font-family: var(--mono); }
+</style>
+</head>
+<body>
+<header>
+  <h1>SDD Mission Control · <span class="repo" id="repo">…</span></h1>
+  <div class="spacer"></div>
+  <div class="live"><span class="dot" id="dot"></span><span id="stamp">connecting…</span></div>
+</header>
+<main>
+  <div class="gates" id="gates"></div>
+  <h2 class="section">Features</h2>
+  <div id="features"></div>
+  <div class="cols">
+    <div>
+      <h2 class="section">Commit stream</h2>
+      <div class="card"><ul class="feed" id="commits"></ul></div>
+    </div>
+    <div>
+      <h2 class="section">Changelog · Unreleased</h2>
+      <div class="card"><ul class="feed" id="changelog"></ul></div>
+    </div>
+  </div>
+  <footer>polling /api/state every 3s · edit the spec files and watch this update</footer>
+</main>
+<script>
+const PHASES = ["Discover","Spec","Plan","Staff","Tasks","Impl","Verify"];
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// Decide a phase's state for a feature, blending the board + file existence + tasks.
+function phaseState(f, phase) {
+  const board = f.boardPhases || {};
+  if (phase === "Impl") {
+    if (board.Impl === "done") return "done";
+    if (f.tasks.total && f.tasks.done === f.tasks.total) return "done";
+    if (board.Impl === "active" || (f.tasks.done > 0 && f.tasks.done < f.tasks.total)) return "active";
+    return f.files.Tasks ? "todo" : "todo";
+  }
+  if (phase === "Verify") {
+    if (board.Verify === "done" || f.files.Verify) return "done";
+    if (board.Verify === "active") return "active";
+    return "todo";
+  }
+  // Discover/Spec/Plan/Staff/Tasks → file existence, board can upgrade to active
+  const fileMap = { Discover:"Discover", Spec:"Spec", Plan:"Plan", Staff:"Staff", Tasks:"Tasks" };
+  if (f.files[fileMap[phase]]) return "done";
+  const b = board[phase === "Spec" ? "Spec" : phase];
+  if (b === "active") return "active";
+  return "todo";
+}
+
+function pipeline(f) {
+  let html = '<div class="pipe">';
+  PHASES.forEach((p, i) => {
+    const st = phaseState(f, p);
+    if (i > 0) {
+      const prev = phaseState(f, PHASES[i-1]);
+      html += `<div class="connector ${prev==="done"?"done":""}"></div>`;
+    }
+    const mark = st === "done" ? "✓" : (i+1);
+    html += `<div class="step"><div class="node ${st}"><div class="bead">${mark}</div>`
+          + `<div class="lbl">${p}</div></div></div>`;
+  });
+  return html + "</div>";
+}
+
+function featureCard(f) {
+  const pct = f.tasks.total ? Math.round(100 * f.tasks.done / f.tasks.total) : 0;
+  const verdict = f.verdict ? `<span class="verdict ${esc(f.verdict).replace(/[^A-Z]/g,"")}">${esc(f.verdict)}</span>` : "";
+  const notes = f.notes ? `<span class="notes">${esc(f.notes)}</span>` : "";
+  const tasks = f.tasks.items.map(t =>
+    `<li class="${t.done?"done":t.active?"active":""}"><span class="box">${t.done?"☑":t.active?"◐":"☐"}</span>${esc(t.title)}</li>`
+  ).join("");
+  const lanes = f.lanes.length ? `<div class="lanes">` + f.lanes.map(l =>
+    `<span class="lane ${l.active?"active":""}">${esc(l.role)}${l.folder?` · <span class="f">${esc(l.folder)}</span>`:""}</span>`
+  ).join("") + `</div>` : "";
+  const taskBlock = f.tasks.total
+    ? `<div class="task-meta"><span>Tasks</span><span>${f.tasks.done}/${f.tasks.total} · ${pct}%</span></div>`
+      + `<div class="bar"><i style="width:${pct}%"></i></div>`
+      + `<ul class="tasks">${tasks}</ul>`
+    : `<div class="empty">No tasks yet — run /tasks ${esc(f.slug)}.</div>`;
+  return `<div class="card">
+    <div class="card-head"><span class="slug">${esc(f.slug)}</span>${verdict}${notes}</div>
+    ${pipeline(f)}
+    ${taskBlock}
+    ${lanes}
+  </div>`;
+}
+
+function gatesView(g) {
+  const ds = { accepted:["ok","accepted"], pending:["warn","pending — INTAKE not accepted"],
+               missing:["bad","missing"] }[g.designSystem];
+  return [
+    `<div class="gate"><b>Constitution</b><span class="pill ${g.constitution?"ok":"bad"}">${g.constitution?"set":"missing"}</span></div>`,
+    `<div class="gate"><b>Design-system gate</b><span class="pill ${ds[0]}">${ds[1]}</span></div>`,
+  ].join("");
+}
+
+let lastJSON = "";
+async function tick() {
+  let s;
+  try {
+    s = await (await fetch("/api/state", {cache:"no-store"})).json();
+  } catch {
+    document.getElementById("stamp").textContent = "server offline — retrying";
+    return;
+  }
+  const json = JSON.stringify(s);
+  const changed = json !== lastJSON;
+  lastJSON = json;
+
+  document.getElementById("repo").textContent = s.repo;
+  const dot = document.getElementById("dot");
+  if (changed) { dot.classList.remove("pulse"); void dot.offsetWidth; dot.classList.add("pulse"); }
+  document.getElementById("stamp").textContent =
+    "updated " + new Date(s.generatedAt).toLocaleTimeString();
+
+  document.getElementById("gates").innerHTML = gatesView(s.gates);
+  document.getElementById("features").innerHTML =
+    s.features.length ? s.features.map(featureCard).join("")
+                      : `<div class="card empty">No features yet — run /discover &lt;idea&gt; to start one.</div>`;
+  document.getElementById("commits").innerHTML =
+    s.commits.length ? s.commits.map(c =>
+      `<li><span class="h">${esc(c.hash)}</span><span class="s">${esc(c.subject)}</span><span class="w">${esc(c.when)}</span></li>`
+    ).join("") : `<li class="empty">No commits yet.</li>`;
+  document.getElementById("changelog").innerHTML =
+    s.changelog.length ? s.changelog.map(e =>
+      `<li><span class="cat">${esc(e.category)}</span><span class="s">${esc(e.text)}</span></li>`
+    ).join("") : `<li class="empty">Nothing under [Unreleased] yet.</li>`;
+}
+tick();
+setInterval(tick, 3000);
+</script>
+</body>
+</html>
