@@ -1,31 +1,30 @@
 ---
-description: Turn a product idea into a spec set — PRD, ERD/data model, and design system.
-argument-hint: "<one-line description of the feature or product>"
+description: Turn an ACCEPTED product brief into a spec set — PRD, ERD/data model, design system.
+argument-hint: "<feature-slug>  (e.g. 0001-waitlist)"
 allowed-tools: Task, Read, Write, Edit, Glob, Grep
 ---
 
-Begin the **Specify** phase for: $ARGUMENTS
+Begin the **Specify** phase for feature: $1
 
-Steps:
-1. Read `memory/constitution.md` and `docs/stack-profile.md` so the spec fits this project.
-   Also check the design-system foundation: if `design-system/INTAKE.md` is not yet
-   `Accepted: yes`, remind the user it must be provided (via `/design-system`) before
+## Pre-flight: discovery gate (MANDATORY)
+Confirm `specs/$1/product-brief.md` exists and contains the line `Discovery: accepted`.
+If it does not: **STOP**. Tell the user to define what to build first by running
+`/discover` (and to accept the brief). Do not write a PRD against an undefined problem.
+
+## Specify
+1. Read `specs/$1/product-brief.md` (the source of truth for *what*), plus
+   `memory/constitution.md`, `docs/stack-profile.md`, and the `design-system/` status. If
+   `design-system/INTAKE.md` is not yet `Accepted: yes`, remind the user it's required before
    `/implement` can build UI — specifying can still proceed.
-2. Choose the feature folder: look at existing `specs/` folders and pick the next zero-padded
-   number; build a short kebab-case slug from the idea. Create `specs/NNNN-slug/`.
-3. Delegate to the **`design`** subagent to produce, using the matching files in `templates/`
-   as the structure:
-   - `specs/NNNN-slug/prd.md` — problem, goals, non-goals, personas, user stories with
-     acceptance criteria, edge cases, success metrics.
-   - `specs/NNNN-slug/erd.md` — entities, fields/types, relationships, constraints, SQL sketch.
-   - `specs/NNNN-slug/design-system.md` — this is the **application layer**: it composes the
-     foundation in `design-system/` into this feature's screens/components/states. It must NOT
-     redefine global tokens — reference them and note only feature-specific additions.
-4. If anything material is ambiguous, the design agent must ask first or record explicit
-   assumptions in an `## Open questions / assumptions` section — never silently guess on scope
-   or the data model.
+2. Delegate to the **`design`** subagent to produce, using the matching `templates/`:
+   - `specs/$1/prd.md` — derived from and **traceable to the brief**: goals/non-goals from the
+     brief, personas from its users, user stories with **Given/When/Then** acceptance criteria,
+     scope matching the brief's Must list, edge cases, and the brief's success metrics.
+   - `specs/$1/erd.md` — entities, fields/types, relationships, constraints, SQL sketch.
+   - `specs/$1/design-system.md` — the **application layer**: composes the foundation in
+     `design-system/` into this feature's screens/components/states; never redefines tokens.
+3. Anything the brief left open must be resolved or recorded under
+   `## Open questions / assumptions` — never silently guess on scope or the data model.
+4. Tick the **Spec** box for this feature on the Feature board in `docs/progress.md`.
 
-5. Add a row for the new feature to the **Feature board** in `docs/progress.md` with the
-   **Spec** box ticked and the remaining phase boxes unchecked.
-
-Finish by telling the user the folder name and that the next step is `/plan NNNN-slug`.
+Finish by telling the user the next step is `/plan $1`.

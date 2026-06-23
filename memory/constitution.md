@@ -5,6 +5,7 @@
 > *what* and the *why* so it generalises. `/constitution` updates this file.
 
 ## 1. Code quality
+- **Discover before you specify.** No PRD without an accepted product brief (`/discover`). *Why: the costliest mistake is building the wrong thing.*
 - **Spec before code.** No production code without an approved spec in `specs/`. *Why: prevents
   rework and scope drift.*
 - **Match the house style** in `docs/stack-profile.md`. Consistency beats personal preference.
@@ -41,4 +42,4 @@
   Adjust per project, but state the number.
 
 ## 7. How we decide
-- When
+- When the spec and the code disagree, **the spec wins** — change the spec deliberately, then the code. When a principle here blocks progress, raise it explicitly rather than ignoring it.

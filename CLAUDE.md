@@ -11,6 +11,10 @@ project, fill in the blanks, and drive the build with slash commands.
 > **Golden rule 2: no UI is built before a design system is provided.**
 > The user drops their design system into `design-system/`; the build is gated until
 > `design-system/INTAKE.md` says `Accepted: yes`. The coding agent refuses UI work otherwise.
+>
+> **Golden rule 3: define the problem before the solution.**
+> No PRD is written until a product brief (`/discover`) is agreed (`Discovery: accepted`).
+> The kit refuses to specify a solution to an undefined problem.
 
 ---
 
@@ -22,8 +26,10 @@ A new feature flows left-to-right. Each phase has **one command** and **one owni
 |---|-------|---------|--------------|-----------|
 | 0 | Principles (once per project) | `/constitution` | `design` | `memory/constitution.md` |
 | 0.5 | Design system (provide once, before any UI) | `/design-system` | `design` | `design-system/{tokens.css,components.md,INTAKE.md}` |
-| 1 | Specify (the *what* & *why*) | `/specify <idea>` | `design` | `specs/NNNN-slug/{prd,erd,design-system}.md` |
+| 0.75 | Discover (the *what to build*) | `/discover <idea>` | `design` | `specs/NNNN-slug/product-brief.md` |
+| 1 | Specify (the *what* & *why*) | `/specify <slug>` | `design` | `specs/NNNN-slug/{prd,erd,design-system}.md` |
 | 2 | Plan (the *how*) | `/plan <slug>` | `design` | `specs/NNNN-slug/{plan,api-contracts}.md` |
+| 2.5 | Staff (the *who*) | `/staff <slug>` | `design` | `specs/NNNN-slug/team.md` |
 | 3 | Tasks (the *steps*) | `/tasks <slug>` | `design` | `specs/NNNN-slug/tasks.md` |
 | 4 | Implement (the *build*) | `/implement <slug>` | `coding` | source code + commits |
 | 5 | Verify (the *proof*) | `/verify <slug>` | `test-security` | tests, scans, `specs/NNNN-slug/verification.md` |
@@ -40,13 +46,15 @@ by hand, and resume. The whole point is that the expensive, hard-to-reverse phas
 Defined in `.claude/agents/`. Each has a deliberately **restricted toolset** so it can only
 do its job — this is what keeps the pipeline honest.
 
-1. **`design`** — the product-manager + designer brain. Normalises the user-provided design
-   system into canonical tokens + components, and turns a rough idea into a PRD, an ERD/data
-   model, user stories with acceptance criteria, and the per-feature UI spec.
+1. **`design`** — the product-manager + designer brain. Runs product discovery (defines *what*
+   to build), normalises the user-provided design system into tokens + components, and turns the
+   agreed brief into a PRD, an ERD/data model, user stories with acceptance criteria, and the
+   per-feature UI spec.
    Tools: read/write docs only (no `Bash`) — it *cannot* touch code, only specs.
 
-2. **`coding`** — the implementer. Reads the approved spec and writes production code that
-   matches the stack profile and conventions. Tools: full file + shell access.
+2. **`coding`** — the implementer and **tech lead**. Reads the approved spec and `team.md`, then
+   runs each staffed role lane from its `roles/<role>.md` playbook in that role's folder, writing
+   production code that matches the stack profile. Tools: full file + shell access.
 
 3. **`test-security`** — the QA + security reviewer. Writes/runs tests and audits the
    implementation for vulnerabilities. It may create **test files only**; it never edits
@@ -62,13 +70,14 @@ slash command for the phase (the command delegates to the right agent for you).
 ```
 .claude/
   agents/         design.md · coding.md · test-security.md   (the 3 agents)
-  commands/       constitution · specify · plan · tasks · implement · verify · sdd-help
+  commands/       constitution · design-system · discover · specify · plan · staff · tasks · implement · verify · track · export-docs · sdd-help
 memory/
   constitution.md Project-wide principles (edit once per project; referenced by every phase)
 design-system/    DROP YOUR DESIGN SYSTEM HERE before building (the gate)
   README.md       how to provide it · INTAKE.md  the gate marker (Accepted: yes/no)
   tokens.css      your tokens (CSS vars) · components.md  your component inventory
   dropzone/       drop raw inputs (Figma/PDF/CSS/screenshots) for /design-system to ingest
+roles/            Discipline playbooks staffed on demand (frontend, backend, ml, data, devops)
 templates/        Blank doc templates the commands copy + fill
 docs/
   stack-profile.md  Your default stack, conventions, commands (EDIT THIS per project)
@@ -76,7 +85,7 @@ docs/
 CHANGELOG.md        Categorized, dated ledger of every change (Added/Changed/Fixed/Removed/Security/Docs)
 specs/
   README.md       How the per-feature folders work
-  NNNN-slug/      One folder per feature: prd, erd, design-system, plan, api-contracts, tasks, verification
+  NNNN-slug/      One folder per feature: product-brief, prd, erd, design-system, plan, api-contracts, team, tasks, verification
   0001-example-waitlist/   A fully worked example — read it to see the end state
 scripts/
   new-feature.sh  Convenience: scaffold specs/NNNN-slug/ from templates
@@ -106,4 +115,9 @@ match each new project — every agent reads it before acting.
   updating `CHANGELOG.md` (categorized entry) and `docs/progress.md` (feature board + a dated
   post-run checklist). Use `/track <slug>` if it wasn't done automatically. A run isn't done
   until every box in its checklist is ticked or logged as a follow-up.
-- **Spec-first.** If
+- **Spec-first.** If asked to build something with no spec, stop and run `/discover` then `/specify` first.
+- **Discover-first.** Define *what* and *why* (an accepted `product-brief.md`) before *how* — no PRD against an undefined problem.
+- **DB-sourced.** Don't hardcode data the database already holds.
+- **Docs in Markdown.** Specs are Markdown (the source of truth); `/export-docs <slug>` renders
+  shareable Word replicas into `specs/<slug>/exports/`. Edit the `.md` and re-export — never hand-edit the `.docx`.
+- **Commit messages** end with the `Co-Authored-By: Claude <noreply@anthropic.com>` trailer.

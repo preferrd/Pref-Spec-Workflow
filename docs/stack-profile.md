@@ -9,6 +9,13 @@
 Web application with a server-rendered dashboard, backed by Postgres, with optional Python
 data/agent services.
 
+## Repository layout (component → role)
+Code is organised by component; `specs/<slug>/team.md` maps each folder to the role that owns it.
+- `web/` — frontend  ·  `api/` — backend (`db/migrations/` shared)
+- `pipelines/` — data engineer  ·  `research/` — data scientist  ·  `ml/` — ML engineer
+- `analytics/` — data analyst  ·  `infra/` — devops
+Only the folders a feature needs are created.
+
 ## Web app
 - **Framework:** Next.js 14 (App Router, React Server Components).
 - **Language:** TypeScript, `strict: true`. No `any`.

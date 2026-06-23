@@ -18,4 +18,4 @@ Steps:
 3. The plan must be buildable as-is: no hand-waving. Flag any conflict with the spec and resolve
    it in the spec, not silently in the plan.
 
-Finish by telling the user the next step is `/tasks $1`.
+Finish by telling the user the next step is `/staff $1`.
