@@ -1,5 +1,7 @@
 # Tasks — {{Feature name}}
 
+> **Linear:** _pending — run `/handoff` once this PRD is approved_
+
 > Ordered by dependency — build top to bottom. Check each box as it's completed and note the
 > commit. `coding` owns build tasks; `test-security` owns the verification tasks at the end.
 

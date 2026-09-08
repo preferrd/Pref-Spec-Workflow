@@ -31,6 +31,7 @@ A new feature flows left-to-right. Each phase has **one command** and **one owni
 | 2 | Plan (the *how*) | `/plan <slug>` | `design` | `specs/NNNN-slug/{plan,api-contracts}.md` |
 | 2.5 | Staff (the *who*) | `/staff <slug>` | `design` | `specs/NNNN-slug/team.md` |
 | 3 | Tasks (the *steps*) | `/tasks <slug>` | `design` | `specs/NNNN-slug/tasks.md` |
+| 3.5 | Linear hand-off | `/handoff <slug>` | (any) | Linear ticket, `tasks.md` header, `docs/progress.md` |
 | 4 | Implement (the *build*) | `/implement <slug>` | `coding` | source code + commits |
 | 5 | Verify (the *proof*) | `/verify <slug>` | `test-security` | tests, scans, `specs/NNNN-slug/verification.md` |
 | ↳ | Track (after every run/change) | `/track <slug>` | (any) | `CHANGELOG.md`, `docs/progress.md` |
@@ -65,12 +66,74 @@ slash command for the phase (the command delegates to the right agent for you).
 
 ---
 
+## Relationship to Linear, branches, and PRs
+
+Specs are the **authoring workspace**; Linear stays the **execution tracker**. Don't duplicate
+one system's job in the other.
+
+**Hand-off point:** once `/tasks` has written `specs/NNNN-slug/tasks.md` and the PRD's `Status:`
+reads `Approved`, run **`/handoff <slug>`**. It creates one feature-level Linear ticket (team and
+workspace from `AGENTS.md`), links it back into `tasks.md`'s header and `docs/progress.md`'s
+Linear column, and hands the feature to whoever builds it next.
+
+**Ticket lifecycle** (kept in sync automatically — never hand-edit the status in Linear):
+
+| Stage | Linear status | Synced by |
+|-------|---------------|-----------|
+| Ticket created | (`AGENTS.md`'s default new-issue state) | `/handoff` |
+| Build starts | In Progress | `/implement` |
+| PR opened | In Review | `/track` |
+| PR merged | Done | `/track` |
+
+Keep status "In Review" while the PR is open even after checks pass — only "Done" after merge.
+
+**Branch naming:** `<name>/<ticket-id>-<short-description>`, e.g. `alex/eng-284-waitlist-api`.
+
+**Commit granularity:** one ticket = one branch = one PR. Never bundle multiple tickets.
+
+**Commit message format:**
+
+```
+<type>: <description>
+
+<ticket-id>: <ticket-title>
+
+<optional body explaining why>
+```
+
+Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`. Every commit ends with
+`Co-Authored-By: Claude <noreply@anthropic.com>`.
+
+**Opening a PR:**
+
+```bash
+git push -u origin HEAD
+gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
+## Summary
+<bullet points>
+
+## Ticket
+<ticket-id>: <ticket-title>
+
+## Test plan
+- [ ] Tests pass locally
+- [ ] Typecheck/build passes
+EOF
+)"
+```
+
+Run `/track <slug>` right after opening the PR (and again after it merges) so the Linear status
+sync above actually fires.
+
+---
+
 ## Directory map
 
 ```
+AGENTS.md           Linear workspace/team + GitHub repo slug (EDIT THIS per project) — read by /handoff, /implement, /track
 .claude/
   agents/         design.md · coding.md · test-security.md   (the 3 agents)
-  commands/       constitution · design-system · discover · specify · plan · staff · tasks · implement · verify · track · export-docs · sdd-help
+  commands/       constitution · design-system · discover · specify · plan · staff · tasks · handoff · implement · verify · track · export-docs · sdd-help
 memory/
   constitution.md Project-wide principles (edit once per project; referenced by every phase)
 design-system/    DROP YOUR DESIGN SYSTEM HERE before building (the gate)
@@ -121,3 +184,7 @@ match each new project — every agent reads it before acting.
 - **Docs in Markdown.** Specs are Markdown (the source of truth); `/export-docs <slug>` renders
   shareable Word replicas into `specs/<slug>/exports/`. Edit the `.md` and re-export — never hand-edit the `.docx`.
 - **Commit messages** end with the `Co-Authored-By: Claude <noreply@anthropic.com>` trailer.
+- **One ticket = one branch = one PR.** See the Linear section above.
+- **Linear status is machine-managed.** `/handoff` creates the ticket; `/implement` and `/track`
+  move it through In Progress → In Review → Done. Don't set it by hand — it'll just get
+  overwritten on the next sync and the two systems will drift.

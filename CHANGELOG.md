@@ -24,7 +24,9 @@ lives in `specs/NNNN-slug/` — this file is the chronological, human-readable s
 > heading (e.g. `## [0.1.0] — 2026-06-20`) when you release.
 
 ### Added
-- _Nothing yet._
+- Add `/handoff` command + `AGENTS.md` config to automate Linear ticket creation after `/tasks`,
+  with status kept in sync (In Progress / In Review / Done) by `/implement` and `/track` —
+  `specs/-` ([`uncommitted`])
 
 ### Changed
 - _Nothing yet._
