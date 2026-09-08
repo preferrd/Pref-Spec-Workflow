@@ -26,7 +26,7 @@ lives in `specs/NNNN-slug/` — this file is the chronological, human-readable s
 ### Added
 - Add `/handoff` command + `AGENTS.md` config to automate Linear ticket creation after `/tasks`,
   with status kept in sync (In Progress / In Review / Done) by `/implement` and `/track` —
-  `specs/-` ([`uncommitted`])
+  `specs/-` ([`be16feb`])
 
 ### Changed
 - _Nothing yet._

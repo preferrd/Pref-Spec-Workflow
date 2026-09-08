@@ -43,7 +43,7 @@ consider a run done; an unchecked box is a follow-up.
 - [x] Change categorized in `CHANGELOG.md`
 - [x] Feature board reflects current state (added Linear column)
 - [x] No build/test gate applicable (docs-only)
-- [ ] Committed
+- [x] Committed (`be16feb`)
 - Summary: Added `/handoff` command + root `AGENTS.md` (Linear workspace/team + GitHub repo slug
   config), generalized from monorepo's manual `linear` CLI pattern. Ticket creation happens once
   after `/tasks` (PRD `Status: Approved`); status then syncs automatically — `/implement` sets
@@ -55,7 +55,7 @@ consider a run done; an unchecked box is a follow-up.
   copy of this kit).
 - Follow-ups: Not tested end-to-end against a real Linear/GitHub workspace (no credentials in
   this session) — verify `/handoff` and the status syncs on a real feature once `AGENTS.md` is
-  filled in. Not yet committed — review the diff and commit when ready.
+  filled in.
 
 ### 2026-06-20 — Bootstrap: tracking layer added
 - Phase: `Docs` · Feature: `—` · Agent: `claude`
