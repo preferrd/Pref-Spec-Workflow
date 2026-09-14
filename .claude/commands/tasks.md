@@ -18,5 +18,8 @@ Steps:
 3. Order lanes so cross-lane dependencies are respected (backend contracts before frontend
    integration; data-engineer tables before ML training). Mark which lanes can run in **parallel**.
 4. Use Markdown checkboxes (`- [ ]`) so progress can be tracked during `/implement`.
+5. **Carry the Linear ticket forward.** Check `plan.md`'s header for a `**Linear:**` line with a
+   real ticket ID. If present, write that same line into `tasks.md`'s header, replacing the
+   template's `_pending_` placeholder.
 
 Finish by telling the user the next step is `/implement $1`.

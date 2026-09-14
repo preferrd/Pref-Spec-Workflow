@@ -13,6 +13,22 @@ Begin the **Implement** phase for feature: $1   (optional single role/task: $2)
   If not, build only non-UI lanes/tasks and STOP the frontend lane, telling the user to run
   `/design-system`. Never invent styling to get around the gate.
 
+## Linear sync (skip silently if no ticket)
+Check, in order, the header of `specs/$1/tasks.md`, then `plan.md`, then `prd.md` — read the
+first one that exists — for a `**Linear:**` line with a real ticket ID (from `/handoff`). If
+present, move it to **In Progress**, reading the workspace/team from `AGENTS.md`.
+
+**Preferred — Linear MCP.** Call `save_issue` with the ticket's `id` and `state: "In Progress"`.
+The MCP resolves the state by name, so no state-ID lookup is needed. (Tool IDs are
+workspace-specific — `mcp__<server-id>__save_issue` — so match on the tool name, not a fixed
+prefix.)
+
+**Fallback — `linear` CLI.** Look up that team's "In Progress" state ID, then run
+`linear update-issue <id> -s <stateId>` (via Bash). The CLI needs the state **ID**, not the name.
+
+If there's no ticket ID, or neither route is available, skip this step without error — hand-off
+is optional, not mandatory.
+
 ## Build — tech-lead orchestration
 1. Read `specs/$1/tasks.md` (work queue), `team.md` (roster + folders + integration plan),
    `api-contracts.md`, `erd.md`, `design-system.md`, the `design-system/` foundation,

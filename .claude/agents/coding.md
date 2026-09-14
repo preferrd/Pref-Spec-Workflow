@@ -46,9 +46,9 @@ Implementation runs per `team.md`. For each ACTIVE role lane:
   (`- [x]`) with a one-line note of what changed.
 - **Honour the contracts.** Match `api-contracts.md` and `erd.md` exactly. To deviate, STOP and
   hand back to `@design` — the spec changes first, then the code.
-- **Match the house style** in `docs/stack-profile.md` (Next.js 14 + TS strict + Tailwind;
-  FastAPI + SQLAlchemy 2 + Typer; Postgres + numbered migrations). kebab-case files, PascalCase
-  components, camelCase functions, snake_case DB columns. Server-side data fetching on web.
+- **Match the house style in `docs/stack-profile.md`** — it's the single source of truth for
+  framework, language, and naming conventions; don't hardcode assumptions here that could drift
+  from it as the stack changes.
 - **Never hardcode data the database should own.** Keep secrets in env; update `.env.example`.
 - **Build before you commit.** Web: `npm run build` + `tsc --noEmit`. Services: `ruff check` +
   `pytest`. No commits on a red build. Commit small, conventional message + the

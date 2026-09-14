@@ -1,5 +1,7 @@
 # PRD — {{Feature name}}
 
+> **Linear:** _pending — run `/handoff` once this PRD is approved_
+
 - **Feature slug:** NNNN-slug
 - **Status:** Draft | Approved
 - **Source brief:** `product-brief.md` (Discovery must be accepted)

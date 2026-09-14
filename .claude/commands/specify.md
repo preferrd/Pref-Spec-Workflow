@@ -27,4 +27,7 @@ If it does not: **STOP**. Tell the user to define what to build first by running
    `## Open questions / assumptions` — never silently guess on scope or the data model.
 4. Tick the **Spec** box for this feature on the Feature board in `docs/progress.md`.
 
-Finish by telling the user the next step is `/plan $1`.
+Finish by telling the user: once the PRD's `Status:` reads `Approved`, the next step is
+`/handoff $1` — this is the normal product → engineering boundary (see `CLAUDE.md`'s pipeline).
+Mention `/plan $1` only as the alternative, for when the user is also doing the technical
+planning themselves in this session.

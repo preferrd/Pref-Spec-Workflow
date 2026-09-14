@@ -30,6 +30,27 @@ Remove the matching `_Nothing yet._` placeholder once a real entry exists.
    Run log, fill every `{{...}}` field, and check each box you can truthfully confirm. Leave a
    box unchecked only if it genuinely failed — that unchecked box is the user's follow-up.
 
-## 4. Report
+## 4. Linear status sync (skip silently if no ticket)
+Check, in order, the header of `specs/$1/tasks.md`, then `plan.md`, then `prd.md` — read the
+first one that exists — for a `**Linear:**` line with a real ticket ID (from `/handoff`). If
+present, and `gh` is authenticated plus either Linear route is available — the **Linear MCP
+connector** (preferred) or the `linear` CLI (fallback), see `AGENTS.md`:
+1. Find the PR for the current feature branch: `gh pr view --json state,url,number` (or
+   `gh pr list --head <branch> --json state,url,number` if not on that branch). If there's no
+   PR yet, leave the ticket as-is (still In Progress from `/implement`).
+2. If the PR is **open**, sync the ticket to **In Review** — do this every run while it's open,
+   even after checks pass; only move past it once merged.
+3. If the PR is **merged**, sync the ticket to **Done**.
+
+**Applying a status change.** Via the MCP, call `save_issue` with the ticket's `id` and `state`
+set to the state **name** (`"In Review"`, `"Done"`) — no ID lookup needed. Via the CLI, look up
+that state's ID for the team first, then `linear update-issue <id> -s <stateId>`.
+
+Skip this whole step without error if `gh` isn't authenticated, neither Linear route is
+available, there's no ticket ID, or the feature has no branch/PR yet — status sync is
+best-effort, never blocks tracking.
+
+## 5. Report
 Print the filled-in checklist back to the user and call out any unchecked box as an open item.
-If anything is `uncommitted`, tell them the exact `git add`/`commit` to run.
+If anything is `uncommitted`, tell them the exact `git add`/`commit` to run. Note any Linear
+status sync performed (or why it was skipped).

@@ -24,10 +24,16 @@ lives in `specs/NNNN-slug/` — this file is the chronological, human-readable s
 > heading (e.g. `## [0.1.0] — 2026-06-20`) when you release.
 
 ### Added
-- _Nothing yet._
+- Add `/handoff` command + `AGENTS.md` config to automate Linear ticket creation, with status kept
+  in sync (In Progress / In Review / Done) by `/implement` and `/track` — `specs/-` ([`be16feb`])
 
 ### Changed
-- _Nothing yet._
+- Move the Linear hand-off point to right after `/specify` (was `/tasks`, then briefly `/plan`) —
+  `/handoff` now gates on PRD `Status: Approved` only, composes the ticket from
+  `product-brief`/`prd`/`erd`/`design-system.md` (not `plan.md`, which doesn't exist yet), and
+  `CLAUDE.md`'s pipeline now splits into a **product phase** (through `/handoff`) and an
+  **engineering phase** (`/plan` onward) to make that ownership boundary explicit for the kit's
+  other users — `specs/-` ([`af95c4e`])
 
 ### Fixed
 - _Nothing yet._
