@@ -20,25 +20,50 @@ project, fill in the blanks, and drive the build with slash commands.
 
 ## The pipeline
 
-A new feature flows left-to-right. Each phase has **one command** and **one owning agent**.
+This kit is used by more than one role — **product** (discovery/definition) and **engineering**
+(implementation/testing) — and they don't have to be the same person or the same session.
+`/handoff` is the boundary between them: product owns everything up to and including it;
+engineering owns everything after it. If you're doing both yourself, just keep running the
+commands in order — nothing stops you.
 
-| # | Phase | Command | Owning agent | Writes to |
-|---|-------|---------|--------------|-----------|
-| 0 | Principles (once per project) | `/constitution` | `design` | `memory/constitution.md` |
-| 0.5 | Design system (provide once, before any UI) | `/design-system` | `design` | `design-system/{tokens.css,components.md,INTAKE.md}` |
-| 0.75 | Discover (the *what to build*) | `/discover <idea>` | `design` | `specs/NNNN-slug/product-brief.md` |
-| 1 | Specify (the *what* & *why*) | `/specify <slug>` | `design` | `specs/NNNN-slug/{prd,erd,design-system}.md` |
-| 2 | Plan (the *how*) | `/plan <slug>` | `design` | `specs/NNNN-slug/{plan,api-contracts}.md` |
-| 2.5 | Staff (the *who*) | `/staff <slug>` | `design` | `specs/NNNN-slug/team.md` |
-| 3 | Tasks (the *steps*) | `/tasks <slug>` | `design` | `specs/NNNN-slug/tasks.md` |
-| 3.5 | Linear hand-off | `/handoff <slug>` | (any) | Linear ticket, `tasks.md` header, `docs/progress.md` |
-| 4 | Implement (the *build*) | `/implement <slug>` | `coding` | source code + commits |
-| 5 | Verify (the *proof*) | `/verify <slug>` | `test-security` | tests, scans, `specs/NNNN-slug/verification.md` |
-| ↳ | Track (after every run/change) | `/track <slug>` | (any) | `CHANGELOG.md`, `docs/progress.md` |
+**Setup** (once per project):
 
-Run them in order. You can stop after any phase, review the markdown it produced, edit it
-by hand, and resume. The whole point is that the expensive, hard-to-reverse phase
-(implementation) only ever runs against a spec a human has read and approved.
+| Phase | Command | Owning agent | Writes to |
+|-------|---------|--------------|-----------|
+| Principles | `/constitution` | `design` | `memory/constitution.md` |
+| Design system (before any UI) | `/design-system` | `design` | `design-system/{tokens.css,components.md,INTAKE.md}` |
+
+**Product phase** — defines *what* and *why*, then hands off:
+
+| Phase | Command | Owning agent | Writes to |
+|-------|---------|--------------|-----------|
+| Discover (the *what to build*) | `/discover <idea>` | `design` | `specs/NNNN-slug/product-brief.md` |
+| Specify (the *what* & *why*) | `/specify <slug>` | `design` | `specs/NNNN-slug/{prd,erd,design-system}.md` |
+| **Linear hand-off** (needs PRD `Status: Approved`) | `/handoff <slug>` | (any) | Linear ticket, spec header, `docs/progress.md` |
+
+**Engineering phase** — starts from the Linear ticket, not necessarily this repo or session:
+
+| Phase | Command | Owning agent | Writes to |
+|-------|---------|--------------|-----------|
+| Plan (the *how*) | `/plan <slug>` | `design` | `specs/NNNN-slug/{plan,api-contracts}.md` |
+| Staff (the *who*) | `/staff <slug>` | `design` | `specs/NNNN-slug/team.md` |
+| Tasks (the *steps*) | `/tasks <slug>` | `design` | `specs/NNNN-slug/tasks.md` |
+| Implement (the *build*) | `/implement <slug>` | `coding` | source code + commits |
+| Verify (the *proof*) | `/verify <slug>` | `test-security` | tests, scans, `specs/NNNN-slug/verification.md` |
+
+**Cross-cutting:** `/track <slug>` runs after every phase in either group, updating
+`CHANGELOG.md` and `docs/progress.md`.
+
+Run phases in order within each group. You can stop after any phase, review the markdown it
+produced, edit it by hand, and resume. The whole point is that the expensive, hard-to-reverse
+phase (implementation) only ever runs against a spec a human has read and approved — and that a
+developer picking up a ticket has everything they need without having to reverse-engineer a PM's
+intent from partial markdown.
+
+The three Claude subagents below don't map onto product vs. engineering — `design` writes specs
+in *both* phases (it's a spec-writing persona with no shell access, not literally "the PM").
+What changes across the `/handoff` boundary is who's driving the session and what they're
+starting from: product starts from an idea, engineering starts from a self-contained ticket.
 
 ---
 
@@ -71,10 +96,25 @@ slash command for the phase (the command delegates to the right agent for you).
 Specs are the **authoring workspace**; Linear stays the **execution tracker**. Don't duplicate
 one system's job in the other.
 
-**Hand-off point:** once `/tasks` has written `specs/NNNN-slug/tasks.md` and the PRD's `Status:`
-reads `Approved`, run **`/handoff <slug>`**. It creates one feature-level Linear ticket (team and
-workspace from `AGENTS.md`), links it back into `tasks.md`'s header and `docs/progress.md`'s
-Linear column, and hands the feature to whoever builds it next.
+**Hand-off point:** once `/specify` has written `prd.md`/`erd.md`/`design-system.md` and the
+PRD's `Status:` reads `Approved`, run **`/handoff <slug>`**. It creates one feature-level Linear
+ticket (team and workspace from `AGENTS.md`), links it back into the spec header and
+`docs/progress.md`'s Linear column, and hands the feature to engineering. `plan.md`/`tasks.md`
+don't exist yet at this point, by design — technical planning is engineering's job, not
+product's.
+
+**The ticket must stand on its own.** Whoever picks it up may not have the spec markdown — the
+branch may be unpushed, or the specs may never be committed at all. `/handoff` therefore writes
+the substance into the description (problem, scope and MVP line, acceptance criteria, data model
+from the ERD, UI notes from the design system, decisions and their reasoning, open questions,
+relationships) rather than a path into `specs/`. A ticket that only links to a file the reader
+can't open is not a hand-off. It also states plainly that architecture/tasks aren't decided yet —
+that's not a gap, it's the next phase.
+
+**Handing off out of the repo.** Engineering may build the feature in this repo, in a different
+clone of it, or entirely outside the kit — `/plan` through `/verify` are engineering's phases
+wherever they happen. The Linear status syncs below only fire from *this* repo's `/implement` and
+`/track`, so a ticket picked up elsewhere is theirs to manage.
 
 **Ticket lifecycle** (kept in sync automatically — never hand-edit the status in Linear):
 
@@ -133,7 +173,7 @@ sync above actually fires.
 AGENTS.md           Linear workspace/team + GitHub repo slug (EDIT THIS per project) — read by /handoff, /implement, /track
 .claude/
   agents/         design.md · coding.md · test-security.md   (the 3 agents)
-  commands/       constitution · design-system · discover · specify · plan · staff · tasks · handoff · implement · verify · track · export-docs · sdd-help
+  commands/       constitution · design-system · discover · specify · handoff · plan · staff · tasks · implement · verify · track · export-docs · sdd-help
 memory/
   constitution.md Project-wide principles (edit once per project; referenced by every phase)
 design-system/    DROP YOUR DESIGN SYSTEM HERE before building (the gate)

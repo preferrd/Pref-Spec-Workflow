@@ -1,5 +1,7 @@
 # Technical Plan — {{Feature name}}
 
+> **Linear:** _pending — run `/handoff` once this PRD is approved_
+
 ## Architecture overview
 <!-- 3–6 sentences: how the pieces fit, mapped onto the stack profile. A small diagram is welcome. -->
 

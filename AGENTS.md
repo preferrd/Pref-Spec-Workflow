@@ -10,12 +10,18 @@
 | ------------------------ | -------------------------------------------- |
 | Workspace                | `{{linear-workspace-slug}}`                  |
 | Team (name or ID)        | `{{e.g. "Engineering" or team ID}}`          |
-| Default new-issue state  | `{{e.g. "Todo" or "Backlog"}}`               |
+| Default new-issue state  | `{{optional — e.g. "Todo"; blank uses the team's own default}}` |
 
-Requires the [`linear` CLI](https://github.com/rusintez/linear) installed and authenticated:
-`linear config list` should show this workspace (add one with `linear config add <name> <key>`,
-or set `LINEAR_API_KEY` for one-off use). Ticket state changes take a **state ID**, not a plain
-name — commands that need one look it up per-team rather than assuming a fixed ID.
+Needs **one** of these two routes — `/handoff`, `/implement` and `/track` try them in this order:
+
+1. **Linear MCP connector (preferred).** Nothing to install and no second API key; it resolves
+   teams and states **by name**, so no state-ID lookups. Connect it in your Claude connector
+   settings.
+2. **[`linear` CLI](https://github.com/rusintez/linear) (fallback).** Install it, then
+   `linear config list` should show this workspace (add one with `linear config add <name> <key>`,
+   or set `LINEAR_API_KEY` for one-off use). Unlike the MCP, ticket state changes take a **state
+   ID**, not a plain name — commands that need one look it up per-team rather than assuming a
+   fixed ID.
 
 ## GitHub
 
