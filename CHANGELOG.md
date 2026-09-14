@@ -33,7 +33,7 @@ lives in `specs/NNNN-slug/` — this file is the chronological, human-readable s
   `product-brief`/`prd`/`erd`/`design-system.md` (not `plan.md`, which doesn't exist yet), and
   `CLAUDE.md`'s pipeline now splits into a **product phase** (through `/handoff`) and an
   **engineering phase** (`/plan` onward) to make that ownership boundary explicit for the kit's
-  other users — `specs/-` ([`uncommitted`])
+  other users — `specs/-` ([`af95c4e`])
 
 ### Fixed
 - _Nothing yet._

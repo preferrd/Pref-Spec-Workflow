@@ -44,7 +44,7 @@ consider a run done; an unchecked box is a follow-up.
 - [x] Change categorized in `CHANGELOG.md`
 - [x] Feature board reflects current state (Linear column moved next to Spec)
 - [x] No build/test gate applicable (docs-only)
-- [ ] Committed
+- [x] Committed (`af95c4e`)
 - Summary: Moved the product → engineering hand-off point from `/tasks` (original design) to
   `/plan` (an intermediate, now-superseded design) to right after `/specify` — this is where the
   kit's other users, not just the PM in this session, actually split product from engineering
